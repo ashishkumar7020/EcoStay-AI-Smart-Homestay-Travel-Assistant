@@ -10,7 +10,7 @@ const footerLinks = [
 
 function Footer() {
   return (
-    <footer className="border-t border-emerald-100 bg-forest text-white">
+    <footer className="border-t border-emerald-100 bg-forest text-white dark:border-slate-800 dark:bg-slate-950">
       <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
           <div>

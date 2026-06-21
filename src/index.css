@@ -19,6 +19,11 @@ body {
   color: #172026;
 }
 
+.dark body {
+  background: #020617;
+  color: #f8fafc;
+}
+
 a {
   color: inherit;
   text-decoration: none;

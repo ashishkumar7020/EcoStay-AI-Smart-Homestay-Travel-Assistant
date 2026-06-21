@@ -15,7 +15,7 @@ EcoStay AI is a modern responsive frontend skeleton for an AI-powered homestay m
 - Additional routes for About, Dashboard, and Login
 - Reusable component structure
 - Mobile-friendly navigation menu
-- Placeholder dashboard statistic cards
+- Dashboard statistic cards
 - Non-functional login form UI for future authentication flow
 
 ## Routes
