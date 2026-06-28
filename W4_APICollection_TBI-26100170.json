@@ -1,0 +1,189 @@
+{
+  "info": {
+    "name": "EcoStay AI Week 4 API Collection",
+    "_postman_id": "0f3ab5a9-0f86-49f0-b0d9-ecostayweek4",
+    "description": "Week 4 REST API tests for the EcoStay AI Express backend.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/health"
+      },
+      "response": [
+        {
+          "name": "200 OK",
+          "originalRequest": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health"
+          },
+          "status": "OK",
+          "code": 200,
+          "body": "{\n  \"status\": \"ok\",\n  \"service\": \"EcoStay AI API\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "List Bookings",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/bookings"
+      },
+      "response": [
+        {
+          "name": "200 OK",
+          "originalRequest": {
+            "method": "GET",
+            "url": "{{baseUrl}}/bookings"
+          },
+          "status": "OK",
+          "code": 200,
+          "body": "{\n  \"data\": [\n    {\n      \"id\": 1,\n      \"guestName\": \"Aarav Sharma\",\n      \"destination\": \"Munnar, Kerala\",\n      \"checkIn\": \"2026-07-04\",\n      \"nights\": 3,\n      \"status\": \"confirmed\",\n      \"sustainabilityScore\": 92,\n      \"totalAmount\": 18400\n    }\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "name": "Get Single Booking",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/bookings/1"
+      },
+      "response": [
+        {
+          "name": "200 OK",
+          "originalRequest": {
+            "method": "GET",
+            "url": "{{baseUrl}}/bookings/1"
+          },
+          "status": "OK",
+          "code": 200,
+          "body": "{\n  \"data\": {\n    \"id\": 1,\n    \"guestName\": \"Aarav Sharma\",\n    \"destination\": \"Munnar, Kerala\",\n    \"checkIn\": \"2026-07-04\",\n    \"nights\": 3,\n    \"status\": \"confirmed\",\n    \"sustainabilityScore\": 92,\n    \"totalAmount\": 18400\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "Search Bookings",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/bookings/search?q=Munnar"
+      },
+      "response": [
+        {
+          "name": "200 OK",
+          "originalRequest": {
+            "method": "GET",
+            "url": "{{baseUrl}}/bookings/search?q=Munnar"
+          },
+          "status": "OK",
+          "code": 200,
+          "body": "{\n  \"data\": [\n    {\n      \"id\": 1,\n      \"guestName\": \"Aarav Sharma\",\n      \"destination\": \"Munnar, Kerala\",\n      \"checkIn\": \"2026-07-04\",\n      \"nights\": 3,\n      \"status\": \"confirmed\",\n      \"sustainabilityScore\": 92,\n      \"totalAmount\": 18400\n    }\n  ]\n}"
+        }
+      ]
+    },
+    {
+      "name": "Booking Stats",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/bookings/stats"
+      },
+      "response": [
+        {
+          "name": "200 OK",
+          "originalRequest": {
+            "method": "GET",
+            "url": "{{baseUrl}}/bookings/stats"
+          },
+          "status": "OK",
+          "code": 200,
+          "body": "{\n  \"data\": {\n    \"totalBookings\": 4,\n    \"confirmedBookings\": 2,\n    \"totalRevenue\": 43200,\n    \"averageSustainabilityScore\": 88\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "Create Booking",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"guestName\": \"Riya Kapoor\",\n  \"destination\": \"Wayanad, Kerala\",\n  \"checkIn\": \"2026-07-22\",\n  \"nights\": 3,\n  \"status\": \"pending\",\n  \"sustainabilityScore\": 89,\n  \"totalAmount\": 15600\n}"
+        },
+        "url": "{{baseUrl}}/bookings"
+      },
+      "response": [
+        {
+          "name": "201 Created",
+          "originalRequest": {
+            "method": "POST",
+            "url": "{{baseUrl}}/bookings"
+          },
+          "status": "Created",
+          "code": 201,
+          "body": "{\n  \"data\": {\n    \"id\": 5,\n    \"guestName\": \"Riya Kapoor\",\n    \"destination\": \"Wayanad, Kerala\",\n    \"checkIn\": \"2026-07-22\",\n    \"nights\": 3,\n    \"status\": \"pending\",\n    \"sustainabilityScore\": 89,\n    \"totalAmount\": 15600\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "Update Booking",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"confirmed\",\n  \"totalAmount\": 16200\n}"
+        },
+        "url": "{{baseUrl}}/bookings/2"
+      },
+      "response": [
+        {
+          "name": "200 OK",
+          "originalRequest": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/bookings/2"
+          },
+          "status": "OK",
+          "code": 200,
+          "body": "{\n  \"data\": {\n    \"id\": 2,\n    \"guestName\": \"Meera Iyer\",\n    \"destination\": \"Coorg, Karnataka\",\n    \"checkIn\": \"2026-07-09\",\n    \"nights\": 2,\n    \"status\": \"confirmed\",\n    \"sustainabilityScore\": 86,\n    \"totalAmount\": 16200\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "Delete Booking",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/bookings/4"
+      },
+      "response": [
+        {
+          "name": "204 No Content",
+          "originalRequest": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/bookings/4"
+          },
+          "status": "No Content",
+          "code": 204,
+          "body": ""
+        }
+      ]
+    }
+  ]
+}
