@@ -1,17 +1,19 @@
 import React from "react";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.jsx";
 import { useTheme } from "../context/ThemeContext.jsx";
 
 const links = [
   { label: "Home", path: "/" },
   { label: "About", path: "/about" },
   { label: "Dashboard", path: "/dashboard" },
-  { label: "Login", path: "/login" }
+  { label: "AI Assistant", path: "/ai-assistant" }
 ];
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { isAuthenticated, logout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
 
   const linkClass = ({ isActive }) =>
@@ -57,6 +59,20 @@ function Navbar() {
               {link.label}
             </NavLink>
           ))}
+          {isAuthenticated ? (
+            <>
+              <NavLink to="/profile" className={linkClass}>Profile</NavLink>
+              <button
+                type="button"
+                onClick={logout}
+                className="rounded-md border border-emerald-100 px-3 py-2 text-sm font-semibold text-forest transition hover:bg-skysoft dark:border-slate-700 dark:text-emerald-100 dark:hover:bg-slate-800"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <NavLink to="/login" className={linkClass}>Login</NavLink>
+          )}
           <button
             type="button"
             onClick={toggleTheme}
@@ -76,6 +92,23 @@ function Navbar() {
                 {link.label}
               </NavLink>
             ))}
+            {isAuthenticated ? (
+              <>
+                <NavLink to="/profile" className={linkClass} onClick={() => setIsOpen(false)}>Profile</NavLink>
+                <button
+                  type="button"
+                  onClick={() => {
+                    logout();
+                    setIsOpen(false);
+                  }}
+                  className="rounded-md px-3 py-2 text-left text-sm font-medium text-ink hover:bg-skysoft hover:text-forest dark:text-slate-100 dark:hover:bg-slate-800"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <NavLink to="/login" className={linkClass} onClick={() => setIsOpen(false)}>Login</NavLink>
+            )}
           </div>
         </div>
       )}

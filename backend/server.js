@@ -1,271 +1,221 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
+import mongoose from "mongoose";
+import passport from "passport";
+import { connectDatabase } from "./config/db.js";
+import { requireAuth } from "./middleware/auth.js";
+import Booking from "./models/Booking.js";
+import Guest from "./models/Guest.js";
+import aiRoutes from "./routes/ai.js";
+import authRoutes from "./routes/auth.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
+const allowedOrigins = new Set(
+  (process.env.FRONTEND_ORIGIN || "http://localhost:5173")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+);
+allowedOrigins.add("http://localhost:5173");
+allowedOrigins.add("http://127.0.0.1:5173");
 
 app.use(
   cors({
     origin(origin, callback) {
-      const allowedOrigins = new Set([FRONTEND_ORIGIN, "http://localhost:5173", "http://127.0.0.1:5173"]);
-
-      if (!origin || allowedOrigins.has(origin)) {
-        callback(null, true);
-        return;
-      }
-
-      callback(new Error("Not allowed by CORS"));
+      callback(!origin || allowedOrigins.has(origin) ? null : new Error("Not allowed by CORS"), true);
     }
   })
 );
-app.use(express.json());
+app.use(express.json({ limit: "20kb" }));
+app.use(passport.initialize());
+app.use("/api/auth", authRoutes);
+app.use("/api/ai", aiRoutes);
 
-let nextBookingId = 5;
-
-const bookings = [
-  {
-    id: 1,
-    guestName: "Aarav Sharma",
-    destination: "Munnar, Kerala",
-    checkIn: "2026-07-04",
-    nights: 3,
-    status: "confirmed",
-    sustainabilityScore: 92,
-    totalAmount: 18400
-  },
-  {
-    id: 2,
-    guestName: "Meera Iyer",
-    destination: "Coorg, Karnataka",
-    checkIn: "2026-07-09",
-    nights: 2,
-    status: "pending",
-    sustainabilityScore: 86,
-    totalAmount: 12600
-  },
-  {
-    id: 3,
-    guestName: "Kabir Sen",
-    destination: "Alleppey, Kerala",
-    checkIn: "2026-07-12",
-    nights: 4,
-    status: "confirmed",
-    sustainabilityScore: 95,
-    totalAmount: 24800
-  },
-  {
-    id: 4,
-    guestName: "Nisha Rao",
-    destination: "Ooty, Tamil Nadu",
-    checkIn: "2026-07-18",
-    nights: 2,
-    status: "cancelled",
-    sustainabilityScore: 78,
-    totalAmount: 9800
-  }
-];
-
-function findBooking(id) {
-  return bookings.find((booking) => booking.id === Number(id));
-}
-
-function isBlank(value) {
-  return typeof value === "string" && value.trim() === "";
-}
+const requiredFields = ["guestName", "destination", "checkIn", "nights", "status", "sustainabilityScore", "totalAmount"];
+const allowedFields = new Set(requiredFields);
 
 function isValidDateString(value) {
-  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    return false;
-  }
-
-  const parsedDate = new Date(`${value}T00:00:00.000Z`);
-  return !Number.isNaN(parsedDate.getTime()) && parsedDate.toISOString().slice(0, 10) === value;
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
 }
 
 function validateBooking(payload, partial = false) {
   const errors = [];
-  const requiredFields = ["guestName", "destination", "checkIn", "nights", "status", "sustainabilityScore", "totalAmount"];
-  const allowedFields = new Set(requiredFields);
 
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return ["Request body must be a JSON object"];
   Object.keys(payload).forEach((field) => {
-    if (!allowedFields.has(field)) {
-      errors.push(`${field} is not allowed`);
-    }
+    if (!allowedFields.has(field)) errors.push(`${field} is not allowed`);
   });
-
   if (!partial) {
     requiredFields.forEach((field) => {
-      if (payload[field] === undefined || payload[field] === null || isBlank(payload[field])) {
-        errors.push(`${field} is required`);
-      }
-    });
-  } else {
-    requiredFields.forEach((field) => {
-      if (payload[field] === null || isBlank(payload[field])) {
-        errors.push(`${field} cannot be blank`);
-      }
+      if (payload[field] === undefined || payload[field] === null || payload[field] === "") errors.push(`${field} is required`);
     });
   }
-
-  ["guestName", "destination"].forEach((field) => {
-    if (payload[field] !== undefined && (typeof payload[field] !== "string" || isBlank(payload[field]))) {
-      errors.push(`${field} must be a non-empty string`);
-    }
-  });
-
-  if (payload.checkIn !== undefined && !isValidDateString(payload.checkIn)) {
-    errors.push("checkIn must be a valid date in YYYY-MM-DD format");
+  if (payload.guestName !== undefined && (typeof payload.guestName !== "string" || payload.guestName.trim().length < 2)) {
+    errors.push("guestName must contain at least 2 characters");
   }
-
-  if (payload.nights !== undefined && (!Number.isInteger(Number(payload.nights)) || Number(payload.nights) < 1)) {
-    errors.push("nights must be a positive integer");
+  if (payload.destination !== undefined && (typeof payload.destination !== "string" || payload.destination.trim().length < 2)) {
+    errors.push("destination must contain at least 2 characters");
   }
-
-  if (
-    payload.sustainabilityScore !== undefined &&
-    (!Number.isInteger(Number(payload.sustainabilityScore)) ||
-      Number(payload.sustainabilityScore) < 0 ||
-      Number(payload.sustainabilityScore) > 100)
-  ) {
-    errors.push("sustainabilityScore must be an integer from 0 to 100");
+  if (payload.checkIn !== undefined && !isValidDateString(payload.checkIn)) errors.push("checkIn must be a valid YYYY-MM-DD date");
+  if (payload.nights !== undefined && (!Number.isInteger(Number(payload.nights)) || Number(payload.nights) < 1 || Number(payload.nights) > 365)) {
+    errors.push("nights must be an integer from 1 to 365");
   }
-
-  if (payload.totalAmount !== undefined && (!Number.isFinite(Number(payload.totalAmount)) || Number(payload.totalAmount) < 0)) {
-    errors.push("totalAmount must be zero or more");
-  }
-
   if (payload.status !== undefined && !["confirmed", "pending", "cancelled"].includes(payload.status)) {
     errors.push("status must be confirmed, pending, or cancelled");
   }
-
+  if (payload.sustainabilityScore !== undefined && (!Number.isInteger(Number(payload.sustainabilityScore)) || Number(payload.sustainabilityScore) < 0 || Number(payload.sustainabilityScore) > 100)) {
+    errors.push("sustainabilityScore must be an integer from 0 to 100");
+  }
+  if (payload.totalAmount !== undefined && (!Number.isFinite(Number(payload.totalAmount)) || Number(payload.totalAmount) < 0)) {
+    errors.push("totalAmount must be zero or more");
+  }
   return errors;
 }
 
-app.get("/api/health", (req, res) => {
-  res.status(200).json({ status: "ok", service: "EcoStay AI API" });
-});
+function serializeBooking(booking) {
+  return {
+    id: booking._id.toString(),
+    guestName: booking.guest.name,
+    destination: booking.destination,
+    checkIn: booking.checkIn.toISOString().slice(0, 10),
+    nights: booking.nights,
+    status: booking.status,
+    sustainabilityScore: booking.sustainabilityScore,
+    totalAmount: booking.totalAmount,
+    createdAt: booking.createdAt,
+    updatedAt: booking.updatedAt
+  };
+}
 
-app.get("/api/bookings", (req, res) => {
-  res.status(200).json({ data: bookings });
-});
+function asyncRoute(handler) {
+  return (req, res, next) => Promise.resolve(handler(req, res, next)).catch(next);
+}
 
-app.get("/api/bookings/search", (req, res) => {
-  const query = String(req.query.q || "").trim().toLowerCase();
-
-  if (!query) {
-    return res.status(400).json({ error: "Search query q is required" });
-  }
-
-  const results = bookings.filter(
-    (booking) =>
-      booking.guestName.toLowerCase().includes(query) ||
-      booking.destination.toLowerCase().includes(query) ||
-      booking.status.toLowerCase().includes(query)
+async function findOrCreateGuest(name) {
+  const normalizedName = name.trim();
+  return Guest.findOneAndUpdate(
+    { name: { $regex: `^${normalizedName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, $options: "i" } },
+    { $setOnInsert: { name: normalizedName } },
+    { new: true, upsert: true }
   );
+}
 
-  return res.status(200).json({ data: results });
+app.get("/api/health", (req, res) => {
+  const connected = mongoose.connection.readyState === 1;
+  res.status(connected ? 200 : 503).json({ status: connected ? "ok" : "unavailable", service: "EcoStay AI API", database: connected ? "connected" : "disconnected" });
 });
 
-app.get("/api/bookings/stats", (req, res) => {
-  const confirmedBookings = bookings.filter((booking) => booking.status === "confirmed");
-  const totalRevenue = confirmedBookings.reduce((sum, booking) => sum + booking.totalAmount, 0);
-  const averageSustainabilityScore =
-    bookings.length > 0 ? bookings.reduce((sum, booking) => sum + booking.sustainabilityScore, 0) / bookings.length : 0;
+app.get("/api/bookings", requireAuth, asyncRoute(async (req, res) => {
+  const bookings = await Booking.find().populate("guest").sort({ createdAt: -1 });
+  res.status(200).json({ data: bookings.map(serializeBooking) });
+}));
 
-  res.status(200).json({
-    data: {
-      totalBookings: bookings.length,
-      confirmedBookings: confirmedBookings.length,
-      totalRevenue,
-      averageSustainabilityScore: Math.round(averageSustainabilityScore)
+app.get("/api/bookings/search", requireAuth, asyncRoute(async (req, res) => {
+  const query = String(req.query.q || "").trim();
+  if (query.length < 2) return res.status(400).json({ error: "Search query q must contain at least 2 characters" });
+
+  const regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+  const guests = await Guest.find({ name: regex }).select("_id");
+  const bookings = await Booking.find({
+    $or: [{ destination: regex }, { status: regex }, { guest: { $in: guests.map((guest) => guest._id) } }]
+  }).populate("guest").sort({ createdAt: -1 });
+  res.status(200).json({ data: bookings.map(serializeBooking) });
+}));
+
+app.get("/api/bookings/stats", requireAuth, asyncRoute(async (req, res) => {
+  const [stats] = await Booking.aggregate([
+    {
+      $group: {
+        _id: null,
+        totalBookings: { $sum: 1 },
+        confirmedBookings: { $sum: { $cond: [{ $eq: ["$status", "confirmed"] }, 1, 0] } },
+        totalRevenue: { $sum: { $cond: [{ $eq: ["$status", "confirmed"] }, "$totalAmount", 0] } },
+        averageSustainabilityScore: { $avg: "$sustainabilityScore" }
+      }
     }
+  ]);
+  res.status(200).json({
+    data: stats
+      ? { ...stats, _id: undefined, averageSustainabilityScore: Math.round(stats.averageSustainabilityScore) }
+      : { totalBookings: 0, confirmedBookings: 0, totalRevenue: 0, averageSustainabilityScore: 0 }
   });
-});
+}));
 
-app.get("/api/bookings/:id", (req, res) => {
-  const booking = findBooking(req.params.id);
+app.get("/api/bookings/:id", requireAuth, asyncRoute(async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ error: "Invalid booking id" });
+  const booking = await Booking.findById(req.params.id).populate("guest");
+  if (!booking) return res.status(404).json({ error: "Booking not found" });
+  res.status(200).json({ data: serializeBooking(booking) });
+}));
 
-  if (!booking) {
-    return res.status(404).json({ error: "Booking not found" });
-  }
-
-  return res.status(200).json({ data: booking });
-});
-
-app.post("/api/bookings", (req, res) => {
+app.post("/api/bookings", requireAuth, asyncRoute(async (req, res) => {
   const errors = validateBooking(req.body);
-
-  if (errors.length > 0) {
-    return res.status(400).json({ errors });
-  }
-
-  const newBooking = {
-    id: nextBookingId,
-    guestName: req.body.guestName.trim(),
+  if (errors.length) return res.status(400).json({ errors });
+  const guest = await findOrCreateGuest(req.body.guestName);
+  const booking = await Booking.create({
+    guest: guest._id,
     destination: req.body.destination.trim(),
-    checkIn: req.body.checkIn,
+    checkIn: new Date(`${req.body.checkIn}T00:00:00.000Z`),
     nights: Number(req.body.nights),
     status: req.body.status,
     sustainabilityScore: Number(req.body.sustainabilityScore),
     totalAmount: Number(req.body.totalAmount)
-  };
-
-  nextBookingId += 1;
-  bookings.push(newBooking);
-
-  return res.status(201).json({ data: newBooking });
-});
-
-app.put("/api/bookings/:id", (req, res) => {
-  const booking = findBooking(req.params.id);
-
-  if (!booking) {
-    return res.status(404).json({ error: "Booking not found" });
-  }
-
-  const errors = validateBooking(req.body, true);
-
-  if (errors.length > 0) {
-    return res.status(400).json({ errors });
-  }
-
-  Object.assign(booking, {
-    ...req.body,
-    guestName: req.body.guestName !== undefined ? req.body.guestName.trim() : booking.guestName,
-    destination: req.body.destination !== undefined ? req.body.destination.trim() : booking.destination,
-    nights: req.body.nights !== undefined ? Number(req.body.nights) : booking.nights,
-    sustainabilityScore:
-      req.body.sustainabilityScore !== undefined ? Number(req.body.sustainabilityScore) : booking.sustainabilityScore,
-    totalAmount: req.body.totalAmount !== undefined ? Number(req.body.totalAmount) : booking.totalAmount
   });
+  await booking.populate("guest");
+  res.status(201).json({ data: serializeBooking(booking) });
+}));
 
-  return res.status(200).json({ data: booking });
-});
-
-app.delete("/api/bookings/:id", (req, res) => {
-  const bookingIndex = bookings.findIndex((booking) => booking.id === Number(req.params.id));
-
-  if (bookingIndex === -1) {
-    return res.status(404).json({ error: "Booking not found" });
+app.put("/api/bookings/:id", requireAuth, asyncRoute(async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ error: "Invalid booking id" });
+  const errors = validateBooking(req.body, true);
+  if (errors.length) return res.status(400).json({ errors });
+  const updates = { ...req.body };
+  if (updates.guestName !== undefined) {
+    const guest = await findOrCreateGuest(updates.guestName);
+    updates.guest = guest._id;
+    delete updates.guestName;
   }
+  if (updates.destination !== undefined) updates.destination = updates.destination.trim();
+  if (updates.checkIn !== undefined) updates.checkIn = new Date(`${updates.checkIn}T00:00:00.000Z`);
+  ["nights", "sustainabilityScore", "totalAmount"].forEach((field) => {
+    if (updates[field] !== undefined) updates[field] = Number(updates[field]);
+  });
+  const booking = await Booking.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true }).populate("guest");
+  if (!booking) return res.status(404).json({ error: "Booking not found" });
+  res.status(200).json({ data: serializeBooking(booking) });
+}));
 
-  bookings.splice(bookingIndex, 1);
-  return res.status(204).send();
-});
+app.delete("/api/bookings/:id", requireAuth, asyncRoute(async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ error: "Invalid booking id" });
+  const booking = await Booking.findByIdAndDelete(req.params.id);
+  if (!booking) return res.status(404).json({ error: "Booking not found" });
+  res.status(204).send();
+}));
 
-app.use((req, res) => {
-  res.status(404).json({ error: "Route not found" });
-});
+app.use((req, res) => res.status(404).json({ error: "Route not found" }));
 
 app.use((err, req, res, next) => {
   console.error(err);
+  if (err instanceof mongoose.Error.ValidationError) return res.status(400).json({ error: err.message });
+  if (err.message === "Not allowed by CORS") return res.status(403).json({ error: err.message });
+  if (err.status) return res.status(err.status).json({ error: err.message });
   res.status(500).json({ error: "Internal server error" });
 });
 
-app.listen(PORT, () => {
-  console.log(`EcoStay AI API running on http://localhost:${PORT}`);
-});
+async function startServer() {
+  try {
+    await connectDatabase();
+    app.listen(PORT, () => console.log(`EcoStay AI API running on http://localhost:${PORT}`));
+  } catch (error) {
+    console.error(`Server startup failed: ${error.message}`);
+    process.exit(1);
+  }
+}
+
+startServer();
