@@ -112,7 +112,7 @@ app.get("/api/health", (req, res) => {
 });
 
 app.get("/api/bookings", requireAuth, asyncRoute(async (req, res) => {
-  const bookings = await Booking.find().populate("guest").sort({ createdAt: -1 });
+  const bookings = await Booking.find({ owner: req.user._id }).populate("guest").sort({ createdAt: -1 });
   res.status(200).json({ data: bookings.map(serializeBooking) });
 }));
 
@@ -123,6 +123,7 @@ app.get("/api/bookings/search", requireAuth, asyncRoute(async (req, res) => {
   const regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
   const guests = await Guest.find({ name: regex }).select("_id");
   const bookings = await Booking.find({
+    owner: req.user._id,
     $or: [{ destination: regex }, { status: regex }, { guest: { $in: guests.map((guest) => guest._id) } }]
   }).populate("guest").sort({ createdAt: -1 });
   res.status(200).json({ data: bookings.map(serializeBooking) });
@@ -130,6 +131,7 @@ app.get("/api/bookings/search", requireAuth, asyncRoute(async (req, res) => {
 
 app.get("/api/bookings/stats", requireAuth, asyncRoute(async (req, res) => {
   const [stats] = await Booking.aggregate([
+    { $match: { owner: req.user._id } },
     {
       $group: {
         _id: null,
@@ -149,7 +151,7 @@ app.get("/api/bookings/stats", requireAuth, asyncRoute(async (req, res) => {
 
 app.get("/api/bookings/:id", requireAuth, asyncRoute(async (req, res) => {
   if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ error: "Invalid booking id" });
-  const booking = await Booking.findById(req.params.id).populate("guest");
+  const booking = await Booking.findOne({ _id: req.params.id, owner: req.user._id }).populate("guest");
   if (!booking) return res.status(404).json({ error: "Booking not found" });
   res.status(200).json({ data: serializeBooking(booking) });
 }));
@@ -159,6 +161,7 @@ app.post("/api/bookings", requireAuth, asyncRoute(async (req, res) => {
   if (errors.length) return res.status(400).json({ errors });
   const guest = await findOrCreateGuest(req.body.guestName);
   const booking = await Booking.create({
+    owner: req.user._id,
     guest: guest._id,
     destination: req.body.destination.trim(),
     checkIn: new Date(`${req.body.checkIn}T00:00:00.000Z`),
@@ -186,14 +189,14 @@ app.put("/api/bookings/:id", requireAuth, asyncRoute(async (req, res) => {
   ["nights", "sustainabilityScore", "totalAmount"].forEach((field) => {
     if (updates[field] !== undefined) updates[field] = Number(updates[field]);
   });
-  const booking = await Booking.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true }).populate("guest");
+  const booking = await Booking.findOneAndUpdate({ _id: req.params.id, owner: req.user._id }, updates, { new: true, runValidators: true }).populate("guest");
   if (!booking) return res.status(404).json({ error: "Booking not found" });
   res.status(200).json({ data: serializeBooking(booking) });
 }));
 
 app.delete("/api/bookings/:id", requireAuth, asyncRoute(async (req, res) => {
   if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ error: "Invalid booking id" });
-  const booking = await Booking.findByIdAndDelete(req.params.id);
+  const booking = await Booking.findOneAndDelete({ _id: req.params.id, owner: req.user._id });
   if (!booking) return res.status(404).json({ error: "Booking not found" });
   res.status(204).send();
 }));

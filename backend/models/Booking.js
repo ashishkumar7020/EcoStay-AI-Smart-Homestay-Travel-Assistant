@@ -2,6 +2,12 @@ import mongoose from "mongoose";
 
 const bookingSchema = new mongoose.Schema(
   {
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true
+    },
     guest: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Guest",
