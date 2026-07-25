@@ -101,6 +101,17 @@ function Dashboard() {
 
   async function handleSave(event) {
     event.preventDefault();
+    const errors = [];
+    if (form.guestName.trim().length < 2) errors.push("Guest name must contain at least 2 characters.");
+    if (form.destination.trim().length < 2) errors.push("Destination must contain at least 2 characters.");
+    if (!form.checkIn) errors.push("Choose a check-in date.");
+    if (Number(form.nights) < 1 || Number(form.nights) > 365) errors.push("Nights must be between 1 and 365.");
+    if (Number(form.sustainabilityScore) < 0 || Number(form.sustainabilityScore) > 100) errors.push("Eco score must be between 0 and 100.");
+    if (form.totalAmount === "" || Number(form.totalAmount) < 0) errors.push("Enter a valid total amount.");
+    if (errors.length) {
+      notify(errors[0], "info");
+      return;
+    }
     setIsSaving(true);
     try {
       const response = await fetch(`${API_URL}/bookings${editingId ? `/${editingId}` : ""}`, {
@@ -192,7 +203,11 @@ function Dashboard() {
             ) : apiError ? (
               <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">{apiError}</div>
             ) : bookings.length === 0 ? (
-              <div className="rounded-lg border border-slate-200 p-8 text-center text-slate-600 dark:border-slate-700 dark:text-slate-300">No bookings found.</div>
+              <div className="rounded-lg border border-dashed border-slate-300 p-8 text-center dark:border-slate-700">
+                <h3 className="font-bold text-forest dark:text-emerald-100">No bookings yet</h3>
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Add your first reservation to start tracking stays and eco scores.</p>
+                <Button className="mt-4" onClick={openCreateModal}>Add booking</Button>
+              </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[780px] text-left text-sm">
