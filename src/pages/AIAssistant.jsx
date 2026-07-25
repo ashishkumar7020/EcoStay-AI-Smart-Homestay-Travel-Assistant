@@ -137,7 +137,7 @@ function AIAssistant() {
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-10 sm:px-6 lg:px-8">
         <section className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-leaf dark:text-emerald-300">Week 7 AI Integration</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-leaf dark:text-emerald-300">AI Workspace</p>
             <h1 className="mt-3 text-4xl font-bold text-forest dark:text-emerald-100">EcoStay AI Assistant</h1>
             <p className="mt-4 max-w-2xl text-base leading-7 text-slate-700 dark:text-slate-300">
               Generate travel plans, listing copy, and guest review insights using a backend Groq API service.
