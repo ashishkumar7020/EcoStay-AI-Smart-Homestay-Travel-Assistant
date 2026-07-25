@@ -44,7 +44,7 @@ function Dashboard() {
       const endpoint = query.trim()
         ? `${API_URL}/bookings/search?q=${encodeURIComponent(query.trim())}`
         : `${API_URL}/bookings`;
-      const requestOptions = { headers: { Authorization: `Bearer ${token}` } };
+      const requestOptions = { cache: "no-store", headers: { Authorization: `Bearer ${token}` } };
       const [bookingsResponse, statsResponse] = await Promise.all([fetch(endpoint, requestOptions), fetch(`${API_URL}/bookings/stats`, requestOptions)]);
       if (bookingsResponse.status === 401 || statsResponse.status === 401) {
         logout();
