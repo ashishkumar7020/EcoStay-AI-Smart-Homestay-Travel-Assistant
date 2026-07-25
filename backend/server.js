@@ -31,6 +31,10 @@ app.use(
   })
 );
 app.use(express.json({ limit: "20kb" }));
+app.use((req, res, next) => {
+  res.set("Cache-Control", "no-store");
+  next();
+});
 app.use(passport.initialize());
 app.use("/api/auth", authRoutes);
 app.use("/api/ai", aiRoutes);
