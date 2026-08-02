@@ -212,6 +212,35 @@ If an AI request fails, the frontend shows a toast error. During generation, the
 npm run build
 ```
 
+## Deployment (Week 9)
+
+### Live URLs
+
+- Frontend: https://ecostay-ai.vercel.app
+- Backend: pending Render deployment
+
+### Deploy the Backend on Render
+
+1. In Render, create a **New Web Service** from this GitHub repository.
+2. Use `backend` as the root directory, `npm ci` as the build command, and `npm start` as the start command. The included `render.yaml` contains the same settings.
+3. Add these Render environment variables: `MONGO_URI`, `FRONTEND_ORIGIN`, `FRONTEND_URL`, `GROQ_API_KEY`, and, if OAuth is enabled, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, and `GITHUB_CALLBACK_URL`.
+4. Set `FRONTEND_ORIGIN` to `https://ecostay-ai.vercel.app` and `FRONTEND_URL` to the same URL. Set `GITHUB_CALLBACK_URL` to `https://<your-render-service>.onrender.com/api/auth/github/callback` when using GitHub OAuth.
+5. After deployment, open `https://<your-render-service>.onrender.com/api/health`. It should return a `200` response with a connected database status.
+
+### Deploy the Frontend on Vercel
+
+1. Import this GitHub repository in Vercel. Keep the root directory as the repository root.
+2. Add a production environment variable: `VITE_API_URL=https://<your-render-service>.onrender.com/api`.
+3. Redeploy the project after saving the variable. `vercel.json` ensures direct links such as `/dashboard` and `/ai-assistant` load correctly instead of returning a 404 page.
+4. Test registration, login, booking CRUD, and the AI assistant through the Vercel URL.
+
+### Production Checklist
+
+- Keep `.env` and all API keys out of Git.
+- In MongoDB Atlas Network Access, allow the Render service to connect. For student deployment testing, `0.0.0.0/0` can be used with a strong database password.
+- Update the GitHub OAuth callback URL in the GitHub OAuth App before testing OAuth in production.
+- Render free services can sleep after inactivity. The first request can take around 30-60 seconds while the service starts.
+
 ## Week 5 Deliverables
 
 - Database-backed source code and Mongoose models in this repository
