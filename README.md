@@ -80,7 +80,7 @@ Example:
 
 ```env
 PORT=5000
-FRONTEND_ORIGIN=http://localhost:5173,https://ecostay-ai.vercel.app
+FRONTEND_ORIGIN=http://localhost:5173,https://eco-stay-ai-smart-homestay-travel-a.vercel.app
 FRONTEND_URL=http://localhost:5173
 MONGO_URI=mongodb+srv://<username>:<password>@<cluster-url>/ecostay?retryWrites=true&w=majority
 JWT_SECRET=replace-with-a-long-random-secret
@@ -216,16 +216,16 @@ npm run build
 
 ### Live URLs
 
-- Frontend: https://ecostay-ai.vercel.app
-- Backend: pending Render deployment
+- Frontend: https://eco-stay-ai-smart-homestay-travel-a.vercel.app
+- Backend health check: https://ecostay-ai-smart-homestay-travel.onrender.com/api/health
 
 ### Deploy the Backend on Render
 
 1. In Render, create a **New Web Service** from this GitHub repository.
 2. Use `backend` as the root directory, `npm ci` as the build command, and `npm start` as the start command. The included `render.yaml` contains the same settings.
 3. Add these Render environment variables: `MONGO_URI`, `FRONTEND_ORIGIN`, `FRONTEND_URL`, `GROQ_API_KEY`, and, if OAuth is enabled, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, and `GITHUB_CALLBACK_URL`.
-4. Set `FRONTEND_ORIGIN` to `https://ecostay-ai.vercel.app` and `FRONTEND_URL` to the same URL. Set `GITHUB_CALLBACK_URL` to `https://<your-render-service>.onrender.com/api/auth/github/callback` when using GitHub OAuth.
-5. After deployment, open `https://<your-render-service>.onrender.com/api/health`. It should return a `200` response with a connected database status.
+4. Set `FRONTEND_ORIGIN` and `FRONTEND_URL` to `https://eco-stay-ai-smart-homestay-travel-a.vercel.app`. Set `GITHUB_CALLBACK_URL` to `https://<your-render-service>.onrender.com/api/auth/github/callback` when using GitHub OAuth.
+5. After deployment, open `https://ecostay-ai-smart-homestay-travel.onrender.com/api/health`. It should return a `200` response with a connected database status.
 
 ### Deploy the Frontend on Vercel
 
