@@ -3,49 +3,33 @@ import { Link } from "react-router-dom";
 
 function Hero() {
   return (
-    <section className="bg-skysoft dark:bg-slate-900">
-      <div className="mx-auto grid min-h-[560px] max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
+    <section className="relative isolate min-h-[690px] overflow-hidden bg-slate-950 text-white">
+      <img
+        src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2200&q=85"
+        alt="A forested mountain landscape for an eco-conscious getaway"
+        className="absolute inset-0 -z-20 h-full w-full object-cover"
+      />
+      <div className="absolute inset-0 -z-10 bg-slate-950/55" />
+      <div className="mx-auto flex min-h-[690px] max-w-7xl flex-col justify-end px-4 pb-16 pt-32 sm:px-6 lg:px-8">
         <div className="max-w-3xl">
-          <p className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-leaf dark:text-emerald-300">
-            Homestay growth and travel intelligence
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-200">Thoughtful stays, better journeys</p>
+          <h1 className="mt-5 text-5xl font-bold leading-[1.04] sm:text-6xl lg:text-7xl">EcoStay AI</h1>
+          <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-100 sm:text-xl">
+            A calm, intelligent workspace for homestay owners and guests who want travel to feel more local, useful, and sustainable.
           </p>
-          <h1 className="text-4xl font-bold leading-tight text-forest dark:text-emerald-100 sm:text-5xl lg:text-6xl">
-            Smart Homestay Management Powered by AI
-          </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-700 dark:text-slate-300">
-            Increase direct bookings, enhance guest experiences, and plan unforgettable trips with intelligent travel
-            assistance.
-          </p>
-          <Link
-            to="/dashboard"
-            className="mt-8 inline-flex rounded-md bg-forest px-6 py-3 text-base font-semibold text-white shadow-soft transition hover:bg-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-200 dark:bg-leaf dark:text-slate-950 dark:hover:bg-emerald-300 dark:focus:ring-emerald-900"
-          >
-            Explore EcoStay AI
-          </Link>
+          <div className="mt-9 flex flex-wrap gap-3">
+            <Link to="/dashboard" className="inline-flex rounded-md bg-leaf px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300 focus:outline-none focus:ring-4 focus:ring-emerald-200">
+              Open owner dashboard
+            </Link>
+            <Link to="/ai-assistant" className="inline-flex rounded-md border border-white/45 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10 focus:outline-none focus:ring-4 focus:ring-white/30">
+              Plan with AI
+            </Link>
+          </div>
         </div>
-
-        <div className="rounded-lg border border-emerald-100 bg-white p-5 shadow-soft dark:border-slate-800 dark:bg-slate-950">
-          <div className="rounded-md bg-forest p-5 text-white dark:bg-slate-800">
-            <p className="text-sm text-emerald-100">Today at Green Valley Homestay</p>
-            <div className="mt-5 grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-3xl font-bold">82%</p>
-                <p className="text-sm text-emerald-100">Occupancy</p>
-              </div>
-              <div>
-                <p className="text-3xl font-bold">24</p>
-                <p className="text-sm text-emerald-100">Direct bookings</p>
-              </div>
-            </div>
-          </div>
-          <div className="mt-5 space-y-3">
-            {["AI guest reply drafted", "3-day local itinerary ready", "Weekend demand is rising"].map((item) => (
-              <div key={item} className="flex items-center justify-between rounded-md border border-emerald-100 p-4 dark:border-slate-800">
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{item}</span>
-                <span className="h-2.5 w-2.5 rounded-full bg-leaf" />
-              </div>
-            ))}
-          </div>
+        <div className="mt-14 grid max-w-3xl grid-cols-3 border-t border-white/25 pt-5 text-sm text-slate-100 sm:gap-8">
+          <div><strong className="block text-2xl text-white">4.9/5</strong>guest-ready experience</div>
+          <div><strong className="block text-2xl text-white">24/7</strong>AI planning tools</div>
+          <div><strong className="block text-2xl text-white">Low-impact</strong>travel first</div>
         </div>
       </div>
     </section>

@@ -1,158 +1,132 @@
-# EcoStay AI - Smart Homestay & Travel Assistant
+# EcoStay AI - Smart Homestay and Travel Assistant
 
-EcoStay AI is a full-stack homestay booking dashboard built with React, Express, MongoDB Atlas, and Groq. The Week 7 version adds a protected AI assistant for itinerary planning, listing writing, and guest review insights.
+EcoStay AI is a full-stack application for homestay owners to manage bookings and use AI for eco-friendly guest travel planning, listing copy, and review insights.
 
-## Tech Stack
+## Live Demo
 
-- React 18, Vite, Tailwind CSS, React Router
-- Node.js, Express, Mongoose
-- MongoDB Atlas
-- CORS, dotenv, bcrypt, JWT, Passport GitHub OAuth
-- Groq API for AI-generated travel and homestay assistance
+- Frontend: [EcoStay AI on Vercel](https://eco-stay-ai-smart-homestay-travel-a.vercel.app/)
+- Backend health check: [EcoStay API on Render](https://ecostay-ai-smart-homestay-travel.onrender.com/api/health)
 
-## Database Choice
+## Demo Video
 
-MongoDB Atlas was selected because EcoStay booking records are naturally represented as documents and may gain flexible travel or sustainability fields later. Mongoose provides schema validation, references, indexes, timestamps, and a clean migration path from the Week 4 Express API.
+No demo video is included because it is not required for the current Week 10 submission.
 
-## Schema
+## Screenshots
 
-![EcoStay database schema](docs/W5_SchemaDiagram_TBI-26100170.png)
+### Booking dashboard
 
-- One `Guest` can have many `Booking` records.
-- `Booking.guest` stores an ObjectId reference to `Guest`.
-- Guest names, destinations, booking dates, and statuses are indexed for common dashboard access patterns.
+![EcoStay booking dashboard](docs/images/dashboard.png)
+
+### AI itinerary assistant
+
+![EcoStay AI itinerary assistant](docs/images/ai-assistant.png)
+
+### Protected authentication flow
+
+![EcoStay authentication screen](docs/images/authentication.png)
+
+### Production deployment
+
+![EcoStay deployment evidence](docs/images/deployment.png)
 
 ## Features
 
-- Persistent MongoDB Atlas storage
-- Create, read, update, delete, and search booking records
-- Live dashboard statistics calculated by MongoDB aggregation
-- Server-side payload and ObjectId validation
-- Correct HTTP status codes and centralized error handling
-- Configurable CORS for local and deployed frontends
-- Responsive light/dark frontend
-- Register, login, logout, authenticated profile, and protected dashboard
-- Password hashing with bcrypt
-- JWT authentication for protected API routes
-- GitHub OAuth login support
-- Rate-limited and validated authentication endpoints
-- Protected AI assistant with itinerary planning, listing copy generation, and guest review insights
+- Register, login, logout, JWT sessions, and protected frontend routes
+- Create, search, update, and delete homestay booking records
+- Live booking statistics and sustainability score summaries from MongoDB
+- Input validation, centralized error handling, CORS configuration, and auth rate limiting
+- AI itinerary planner for destination, stay length, budget, and travel style
+- AI listing writer for homestay owners
+- AI guest review insights with sentiment, actions, and a suggested reply
+- Responsive, accessible light and dark interface with clear loading, empty, and error states
 
-## Folder Structure
+## Tech Stack
 
-```text
-backend/
-  config/
-    db.js
-  models/
-    Booking.js
-    Guest.js
-    User.js
-  middleware/
-    auth.js
-  routes/
-    auth.js
-  .env.example
-  package.json
-  server.js
-docs/
-  W5_SchemaDiagram_TBI-26100170.png
-src/
-  components/
-  context/
-  pages/
-    Dashboard.jsx
-  App.jsx
-  main.jsx
+| Layer | Technology | Why it was used |
+|---|---|---|
+| Frontend | React, Vite, React Router, Tailwind CSS | Fast SPA development, reusable UI, and responsive styling |
+| Backend | Node.js, Express | Lightweight REST API and middleware support |
+| Database | MongoDB Atlas with Mongoose | Flexible document data with schema validation and cloud hosting |
+| Security | bcrypt, JWT, express-rate-limit | Password hashing, protected routes, and basic abuse protection |
+| AI | Groq API with `llama-3.1-8b-instant` | Fast text generation for travel and homestay tasks |
+| Hosting | Vercel and Render | Separate production hosting for frontend and API |
+
+## Setup Instructions
+
+### 1. Clone and install
+
+```bash
+git clone https://github.com/ashishkumar7020/EcoStay-AI-Smart-Homestay-Travel-Assistant.git
+cd EcoStay-AI-Smart-Homestay-Travel-Assistant
+npm install
+cd backend
+npm install
 ```
 
-## Set Up the Database
+### 2. Configure environment variables
 
-1. Create a free M0 cluster at MongoDB Atlas.
-2. Create a database user under **Database Access**.
-3. In **Network Access**, allow your current IP address.
-4. Open **Connect > Drivers** and copy the Node.js connection string.
-5. In `backend`, copy `.env.example` to `.env`.
-6. Replace the placeholders in `MONGO_URI` with the Atlas username, password, and cluster URL.
-7. Keep `.env` private. It is ignored by Git and must never be committed.
-
-Example:
+Create `backend/.env` from `backend/.env.example`.
 
 ```env
 PORT=5000
-FRONTEND_ORIGIN=http://localhost:5173,https://eco-stay-ai-smart-homestay-travel-a.vercel.app
+NODE_ENV=development
+FRONTEND_ORIGIN=http://localhost:5173
 FRONTEND_URL=http://localhost:5173
 MONGO_URI=mongodb+srv://<username>:<password>@<cluster-url>/ecostay?retryWrites=true&w=majority
 JWT_SECRET=replace-with-a-long-random-secret
 JWT_EXPIRES_IN=7d
-GITHUB_CLIENT_ID=replace-with-github-oauth-client-id
-GITHUB_CLIENT_SECRET=replace-with-github-oauth-client-secret
-GITHUB_CALLBACK_URL=http://localhost:5000/api/auth/github/callback
 GROQ_API_KEY=replace-with-groq-api-key
 GROQ_MODEL=llama-3.1-8b-instant
 ```
 
-If the password contains reserved URL characters, URL-encode it before adding it to the URI.
+Optional GitHub OAuth variables are also documented in `backend/.env.example`. Keep every secret in `.env`; do not commit it.
 
-## Run Locally
+For a deployed backend, create a root `.env.local` file:
 
-Backend:
+```env
+VITE_API_URL=https://your-render-service.onrender.com/api
+```
+
+### 3. Run locally
+
+Start the backend in one terminal:
 
 ```bash
 cd backend
-npm install
-copy .env.example .env
 npm run dev
 ```
 
-Frontend, in a second terminal:
+Start the frontend in another terminal:
 
 ```bash
-npm install
 npm run dev
 ```
 
-The frontend runs at `http://localhost:5173` and the API at `http://localhost:5000/api`.
+Open `http://localhost:5173`.
 
-For a non-local backend, create a root `.env.local` file:
+## API Documentation
 
-```env
-VITE_API_URL=https://your-api-host.example/api
-```
-
-## API Endpoints
-
-| Method | Endpoint | Description | Success |
-|---|---|---|---|
-| GET | `/api/health` | API and database health | `200` |
-| POST | `/api/auth/register` | Create a user and return JWT | `201` |
-| POST | `/api/auth/login` | Login and return JWT | `200` |
-| GET | `/api/auth/me` | Return logged-in user | `200` |
-| POST | `/api/auth/logout` | Logout acknowledgement | `200` |
-| GET | `/api/auth/github` | Start GitHub OAuth login | `302` |
-| GET | `/api/auth/github/callback` | Complete GitHub OAuth login | `302` |
-| POST | `/api/ai/itinerary` | Generate an eco-friendly travel itinerary, protected | `200` |
-| POST | `/api/ai/listing-description` | Generate homestay listing copy, protected | `200` |
-| POST | `/api/ai/review-insights` | Analyze guest review sentiment and actions, protected | `200` |
-| GET | `/api/bookings` | List bookings, protected | `200` |
-| GET | `/api/bookings/:id` | Read one booking, protected | `200` |
-| GET | `/api/bookings/search?q=munnar` | Search bookings, protected | `200` |
-| GET | `/api/bookings/stats` | Aggregated dashboard statistics, protected | `200` |
-| POST | `/api/bookings` | Create a booking, protected | `201` |
-| PUT | `/api/bookings/:id` | Update supplied booking fields, protected | `200` |
-| DELETE | `/api/bookings/:id` | Delete a booking, protected | `204` |
-
-Invalid payloads and IDs return `400`, missing or invalid tokens return `401`, missing records return `404`, unconfigured OAuth returns `501`, blocked origins return `403`, rate-limited auth attempts return `429`, and unexpected failures return `500`.
-
-Protected booking endpoints require:
+All protected endpoints require:
 
 ```http
 Authorization: Bearer <jwt-token>
 ```
 
-### Authentication Payloads
+| Method | Endpoint | Purpose | Typical response |
+|---|---|---|---|
+| POST | `/api/auth/register` | Create a user and return a JWT | `201 Created` |
+| POST | `/api/auth/login` | Authenticate a user and return a JWT | `200 OK` |
+| GET | `/api/auth/me` | Return the current authenticated user | `200 OK` |
+| GET | `/api/bookings` | List a user's booking records | `200 OK` |
+| POST | `/api/bookings` | Create a booking | `201 Created` |
+| PUT | `/api/bookings/:id` | Update a booking | `200 OK` |
+| DELETE | `/api/bookings/:id` | Delete a booking | `204 No Content` |
+| GET | `/api/bookings/stats` | Return booking and eco-score statistics | `200 OK` |
+| POST | `/api/ai/itinerary` | Generate an eco-friendly itinerary | `200 OK` |
+| POST | `/api/ai/listing-description` | Generate listing copy | `200 OK` |
+| POST | `/api/ai/review-insights` | Analyze a guest review | `200 OK` |
 
-Register:
+Example registration request:
 
 ```json
 {
@@ -162,37 +136,7 @@ Register:
 }
 ```
 
-Login:
-
-```json
-{
-  "email": "ashish@example.com",
-  "password": "Week6Pass123"
-}
-```
-
-Passwords are stored as bcrypt hashes in MongoDB. JWT tokens are signed with `JWT_SECRET` and expire according to `JWT_EXPIRES_IN`.
-
-## Frontend Auth Flow
-
-- `/login` supports both register and login.
-- `/dashboard` is protected and redirects unauthenticated users to `/login`.
-- `/ai-assistant` is protected and redirects unauthenticated users to `/login`.
-- `/profile` is protected and redirects unauthenticated users to `/login`.
-- `/oauth/callback` completes the GitHub OAuth redirect and stores the JWT session.
-- The dashboard sends the JWT in the `Authorization` header for booking CRUD requests.
-
-## Week 7 AI Features
-
-The AI assistant is available at `/ai-assistant` after login. It calls backend routes only, so the Groq API key stays in `backend/.env` and is never exposed to the frontend.
-
-- **Itinerary Planner:** creates day-wise eco-friendly travel plans from destination, nights, budget, and travel style.
-- **Listing Writer:** generates a homestay title, listing description, and short highlights from property details.
-- **Review Insights:** analyzes guest feedback and returns sentiment, issues, improvement actions, and a polite owner reply.
-
-If an AI request fails, the frontend shows a toast error. During generation, the page displays the Week 3 loader component.
-
-### Booking Payload
+Example booking request:
 
 ```json
 {
@@ -206,58 +150,44 @@ If an AI request fails, the frontend shows a toast error. During generation, the
 }
 ```
 
-## Build
+Validation errors return `400`, missing or invalid tokens return `401`, missing records return `404`, rate-limited auth requests return `429`, and unexpected server errors return `500`.
 
-```bash
-npm run build
+## Architecture and Folder Structure
+
+```text
+EcoStay-AI-Smart-Homestay-Travel-Assistant/
+├── src/                    # React pages, components, and auth context
+├── backend/
+│   ├── config/             # MongoDB connection
+│   ├── middleware/         # Authentication and validation middleware
+│   ├── models/             # User, Guest, and Booking Mongoose models
+│   └── routes/             # Auth, booking, and AI REST endpoints
+├── docs/images/            # README screenshots
+├── render.yaml             # Render backend configuration
+└── vercel.json             # Vercel SPA rewrite configuration
 ```
 
-## Deployment (Week 9)
+The React frontend calls the Express REST API. Express validates requests, checks JWTs for protected routes, stores bookings in MongoDB Atlas, and calls Groq only from the backend so the AI key remains private.
 
-### Live URLs
+## Database Schema
 
-- Frontend: https://eco-stay-ai-smart-homestay-travel-a.vercel.app
-- Backend health check: https://ecostay-ai-smart-homestay-travel.onrender.com/api/health
+- `User`: name, email, password hash, provider, timestamps
+- `Guest`: guest information used by bookings
+- `Booking`: guest reference, destination, check-in date, nights, status, sustainability score, and amount
 
-### Deploy the Backend on Render
+MongoDB Atlas was selected because the booking record can grow with flexible travel and sustainability fields while Mongoose still enforces required fields and validation.
 
-1. In Render, create a **New Web Service** from this GitHub repository.
-2. Use `backend` as the root directory, `npm ci` as the build command, and `npm start` as the start command. The included `render.yaml` contains the same settings.
-3. Add these Render environment variables: `MONGO_URI`, `FRONTEND_ORIGIN`, `FRONTEND_URL`, `GROQ_API_KEY`, and, if OAuth is enabled, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, and `GITHUB_CALLBACK_URL`.
-4. Set `FRONTEND_ORIGIN` and `FRONTEND_URL` to `https://eco-stay-ai-smart-homestay-travel-a.vercel.app`. Set `GITHUB_CALLBACK_URL` to `https://<your-render-service>.onrender.com/api/auth/github/callback` when using GitHub OAuth.
-5. After deployment, open `https://ecostay-ai-smart-homestay-travel.onrender.com/api/health`. It should return a `200` response with a connected database status.
+## Known Limitations
 
-### Deploy the Frontend on Vercel
+- Render's free service may take time to wake after inactivity.
+- AI output depends on the configured Groq API key and provider availability.
+- GitHub OAuth requires the optional OAuth variables and correct production callback URL.
+- The application is a student project and does not include payment processing or role-based owner teams.
 
-1. Import this GitHub repository in Vercel. Keep the root directory as the repository root.
-2. Add a production environment variable: `VITE_API_URL=https://<your-render-service>.onrender.com/api`.
-3. Redeploy the project after saving the variable. `vercel.json` ensures direct links such as `/dashboard` and `/ai-assistant` load correctly instead of returning a 404 page.
-4. Test registration, login, booking CRUD, and the AI assistant through the Vercel URL.
+## Credits and Acknowledgements
 
-### Production Checklist
+- MongoDB Atlas for managed database hosting
+- Groq for LLM inference
+- Vercel and Render for deployment
+- React, Express, Tailwind CSS, Mongoose, bcrypt, JWT, and Passport open-source communities
 
-- Keep `.env` and all API keys out of Git.
-- In MongoDB Atlas Network Access, allow the Render service to connect. For student deployment testing, `0.0.0.0/0` can be used with a strong database password.
-- Update the GitHub OAuth callback URL in the GitHub OAuth App before testing OAuth in production.
-- Render free services can sleep after inactivity. The first request can take around 30-60 seconds while the service starts.
-
-## Week 5 Deliverables
-
-- Database-backed source code and Mongoose models in this repository
-- `W5_SchemaDiagram_TBI-26100170.pdf`
-- `W5_CRUDVerification_TBI-26100170.pdf`
-- Month-1 reflection video link submitted separately as an unlisted YouTube URL
-
-## Week 6 Deliverables
-
-- Auth-enabled source code in this repository
-- `W6_AuthFlowScreenshots_TBI-26100170.pdf`
-- `W6_AuthAPICollection_TBI-26100170.json`
-- Consolidated submission zip: `W6_Submission_TBI-26100170.zip`
-
-## Week 7 Deliverables
-
-- AI-enabled source code in this repository
-- `PROMPTS.md`
-- `W7_AIFeatureDemo_TBI-26100170.pdf`
-- GitHub commit message: `feat: integrate Groq AI assistant with loading and error states`

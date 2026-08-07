@@ -38,16 +38,20 @@ function Login() {
   return (
     <div className="flex min-h-screen flex-col bg-skysoft dark:bg-slate-950">
       <Navbar />
-      <main className="mx-auto grid w-full max-w-7xl flex-1 items-center gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
+      <main className="mx-auto grid w-full max-w-7xl flex-1 items-center gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8">
         <section>
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-leaf dark:text-emerald-300">Welcome back</p>
-          <h1 className="mt-4 text-4xl font-bold text-forest dark:text-emerald-100 sm:text-5xl">Login to EcoStay AI</h1>
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-leaf dark:text-emerald-300">Your private workspace</p>
+          <h1 className="mt-4 text-4xl font-bold text-forest dark:text-emerald-100 sm:text-5xl">Run better stays, one calm screen at a time.</h1>
           <p className="mt-5 max-w-xl text-lg leading-8 text-slate-700 dark:text-slate-300">
             Access your homestay management dashboard and AI travel tools.
           </p>
+          <div className="mt-8 grid max-w-md gap-3 sm:grid-cols-3 lg:grid-cols-1">
+            {["Manage live reservations", "Plan guest itineraries", "Create better listing copy"].map((item) => <div key={item} className="flex items-center gap-3 rounded-md border border-emerald-100 bg-white/70 px-4 py-3 text-sm font-semibold text-forest dark:border-slate-800 dark:bg-slate-900 dark:text-emerald-100"><span className="h-2 w-2 rounded-full bg-leaf" />{item}</div>)}
+          </div>
         </section>
 
         <form onSubmit={handleSubmit} className="w-full rounded-lg border border-emerald-100 bg-white p-6 shadow-soft dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+          <div className="mb-6"><p className="text-sm font-semibold uppercase tracking-[0.16em] text-leaf dark:text-emerald-300">Secure sign-in</p><h2 className="mt-2 text-2xl font-bold text-forest dark:text-emerald-100">{mode === "login" ? "Welcome back" : "Create your workspace"}</h2></div>
           <div className="mb-6 grid grid-cols-2 gap-2 rounded-lg bg-emerald-50 p-1 dark:bg-slate-950">
             <button
               type="button"
@@ -83,12 +87,12 @@ function Login() {
             )}
             <Input id="email" name="email" label="Email address" type="email" placeholder="owner@ecostay.ai" value={form.email} onChange={handleChange} required />
             <Input id="password" name="password" label="Password" type="password" placeholder="At least 8 characters with a number" value={form.password} onChange={handleChange} required minLength={8} />
-            <Button type="submit" className="w-full" disabled={isSubmitting}>{isSubmitting ? "Please wait" : mode === "login" ? "Login" : "Create account"}</Button>
+            <Button type="submit" className="w-full" disabled={isSubmitting}>{isSubmitting ? "Please wait" : mode === "login" ? "Continue to dashboard" : "Create account"}</Button>
             <a
               className="block rounded-lg border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-forest transition hover:bg-emerald-50 dark:border-slate-700 dark:text-emerald-100 dark:hover:bg-slate-800"
               href={`${apiUrl}/auth/github`}
             >
-              Sign in with GitHub
+              Continue with GitHub
             </a>
           </div>
         </form>

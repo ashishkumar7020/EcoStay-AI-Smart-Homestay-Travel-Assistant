@@ -24,13 +24,13 @@ function Navbar() {
     }`;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-emerald-100 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95">
+    <header className="sticky top-0 z-50 border-b border-white/15 bg-white/90 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/90">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
         <NavLink to="/" className="flex items-center gap-3" onClick={() => setIsOpen(false)}>
           <span className="grid h-10 w-10 place-items-center rounded-lg bg-forest text-lg font-bold text-white dark:bg-leaf dark:text-slate-950">
             E
           </span>
-          <span className="text-xl font-bold text-forest dark:text-emerald-100">EcoStay AI</span>
+          <span><span className="block text-xl font-bold text-forest dark:text-emerald-100">EcoStay AI</span><span className="hidden text-[10px] font-semibold uppercase tracking-[0.16em] text-leaf sm:block">Stay better</span></span>
         </NavLink>
 
         <div className="flex items-center gap-2 md:hidden">
@@ -40,7 +40,7 @@ function Navbar() {
             className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-emerald-100 text-forest dark:border-slate-700 dark:text-emerald-100"
             aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
           >
-            {isDark ? "L" : "D"}
+            {isDark ? "Light" : "Dark"}
           </button>
           <button
             type="button"
@@ -49,11 +49,11 @@ function Navbar() {
             aria-expanded={isOpen}
             onClick={() => setIsOpen((current) => !current)}
           >
-            <span className="text-2xl leading-none">{isOpen ? "x" : "="}</span>
+            <span className="text-lg leading-none">{isOpen ? "Close" : "Menu"}</span>
           </button>
         </div>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-1 md:flex">
           {links.map((link) => (
             <NavLink key={link.path} to={link.path} className={linkClass}>
               {link.label}
@@ -76,7 +76,7 @@ function Navbar() {
           <button
             type="button"
             onClick={toggleTheme}
-            className="ml-2 rounded-md border border-emerald-100 px-3 py-2 text-sm font-semibold text-forest transition hover:bg-skysoft dark:border-slate-700 dark:text-emerald-100 dark:hover:bg-slate-800"
+            className="ml-3 rounded-md border border-emerald-200 px-3 py-2 text-sm font-semibold text-forest transition hover:bg-skysoft dark:border-slate-700 dark:text-emerald-100 dark:hover:bg-slate-800"
             aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
           >
             {isDark ? "Light" : "Dark"}

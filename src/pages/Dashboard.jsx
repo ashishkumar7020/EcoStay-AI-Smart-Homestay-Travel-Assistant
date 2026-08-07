@@ -156,32 +156,42 @@ function Dashboard() {
     loadDashboardData(searchQuery);
   }
 
+  const statusClass = {
+    confirmed: "bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200",
+    pending: "bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-200",
+    cancelled: "bg-rose-50 text-rose-800 dark:bg-rose-950 dark:text-rose-200"
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-950">
       <Navbar />
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-10 sm:px-6 lg:px-8">
-        <section className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+        <section className="relative overflow-hidden rounded-lg border border-emerald-100 bg-white px-5 py-7 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:px-8 sm:py-9">
+          <div className="absolute right-0 top-0 h-28 w-28 bg-emerald-50 dark:bg-emerald-950/60" aria-hidden="true" />
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-leaf dark:text-emerald-300">Owner overview</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-leaf dark:text-emerald-300">Owner workspace</p>
             <h1 className="mt-3 text-4xl font-bold text-forest dark:text-emerald-100">Business Dashboard</h1>
             <p className="mt-4 max-w-3xl text-base leading-7 text-slate-700 dark:text-slate-300">
               Create, review, update, and delete reservations stored persistently in MongoDB Atlas.
             </p>
           </div>
-          <Button onClick={openCreateModal}>Add booking</Button>
+          <div className="relative mt-6 flex flex-wrap items-center justify-between gap-4 sm:mt-8">
+            <p className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 dark:text-slate-400"><span className="h-2 w-2 rounded-full bg-leaf" />Live data connected</p>
+            <Button onClick={openCreateModal}>Add booking</Button>
+          </div>
         </section>
 
         <section className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {stats.map((stat) => <Card key={stat.title} {...stat} />)}
+          {stats.map((stat, index) => <Card key={stat.title} {...stat} accent={["emerald", "sky", "amber"][index]} />)}
         </section>
 
-        <section className="mt-8 rounded-lg border border-emerald-100 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+        <section className="mt-8 overflow-hidden rounded-lg border border-emerald-100 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-            <div>
+            <div className="p-5 pb-0 sm:p-6 sm:pb-0">
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-leaf dark:text-emerald-300">Reservations</p>
               <h2 className="mt-2 text-2xl font-bold text-forest dark:text-emerald-100">Booking records</h2>
             </div>
-            <form className="flex w-full gap-2 sm:max-w-md" onSubmit={handleSearch}>
+            <form className="flex w-full gap-2 px-5 sm:max-w-md sm:px-6" onSubmit={handleSearch}>
               <div className="flex-1">
                 <Input
                   label="Search bookings"
@@ -197,13 +207,13 @@ function Dashboard() {
             </form>
           </div>
 
-          <div className="mt-6">
+          <div className="mt-6 border-t border-emerald-100 p-5 dark:border-slate-800 sm:p-6">
             {isLoading ? (
               <Loader variant="skeleton" label="Loading bookings" />
             ) : apiError ? (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">{apiError}</div>
+              <div className="rounded-lg border border-red-200 bg-red-50 p-5 text-sm font-semibold text-red-700 dark:border-rose-900 dark:bg-rose-950 dark:text-rose-200"><p>Unable to refresh bookings</p><p className="mt-1 font-normal">{apiError}</p><Button className="mt-4" size="sm" variant="outline" onClick={() => loadDashboardData(searchQuery)}>Try again</Button></div>
             ) : bookings.length === 0 ? (
-              <div className="rounded-lg border border-dashed border-slate-300 p-8 text-center dark:border-slate-700">
+              <div className="rounded-lg border border-dashed border-emerald-200 bg-emerald-50/40 p-10 text-center dark:border-slate-700 dark:bg-slate-950">
                 <h3 className="font-bold text-forest dark:text-emerald-100">No bookings yet</h3>
                 <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Add your first reservation to start tracking stays and eco scores.</p>
                 <Button className="mt-4" onClick={openCreateModal}>Add booking</Button>
@@ -211,21 +221,21 @@ function Dashboard() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[780px] text-left text-sm">
-                  <thead className="text-xs uppercase text-slate-500 dark:text-slate-400">
+                  <thead className="bg-emerald-50/70 text-xs uppercase tracking-[0.08em] text-slate-500 dark:bg-slate-950 dark:text-slate-400">
                     <tr>
-                      <th className="pb-3">Guest</th><th className="pb-3">Destination</th><th className="pb-3">Check-in</th>
-                      <th className="pb-3">Status</th><th className="pb-3 text-right">Revenue</th><th className="pb-3 text-right">Actions</th>
+                      <th className="px-4 py-3">Guest</th><th className="px-4 py-3">Destination</th><th className="px-4 py-3">Check-in</th>
+                      <th className="px-4 py-3">Status</th><th className="px-4 py-3 text-right">Revenue</th><th className="px-4 py-3 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                     {bookings.map((booking) => (
-                      <tr key={booking.id}>
-                        <td className="py-3 font-semibold text-forest dark:text-emerald-100">{booking.guestName}</td>
-                        <td className="py-3 text-slate-600 dark:text-slate-300">{booking.destination}</td>
-                        <td className="py-3 text-slate-600 dark:text-slate-300">{booking.checkIn}</td>
-                        <td className="py-3 capitalize text-slate-600 dark:text-slate-300">{booking.status}</td>
-                        <td className="py-3 text-right font-semibold text-slate-700 dark:text-slate-200">Rs. {booking.totalAmount.toLocaleString("en-IN")}</td>
-                        <td className="py-3 text-right">
+                      <tr key={booking.id} className="transition hover:bg-emerald-50/50 dark:hover:bg-slate-950">
+                        <td className="px-4 py-4 font-semibold text-forest dark:text-emerald-100">{booking.guestName}</td>
+                        <td className="px-4 py-4 text-slate-600 dark:text-slate-300">{booking.destination}</td>
+                        <td className="px-4 py-4 text-slate-600 dark:text-slate-300">{booking.checkIn}</td>
+                        <td className="px-4 py-4"><span className={`rounded-full px-2.5 py-1 text-xs font-bold capitalize ${statusClass[booking.status] || statusClass.pending}`}>{booking.status}</span></td>
+                        <td className="px-4 py-4 text-right font-semibold text-slate-700 dark:text-slate-200">Rs. {booking.totalAmount.toLocaleString("en-IN")}</td>
+                        <td className="px-4 py-4 text-right">
                           <div className="flex justify-end gap-2">
                             <Button size="sm" variant="outline" onClick={() => openEditModal(booking)}>Edit</Button>
                             <Button size="sm" variant="secondary" onClick={() => handleDelete(booking)}>Delete</Button>

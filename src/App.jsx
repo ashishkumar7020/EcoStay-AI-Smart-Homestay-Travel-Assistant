@@ -9,10 +9,12 @@ import AIAssistant from "./pages/AIAssistant.jsx";
 import Login from "./pages/Login.jsx";
 import OAuthCallback from "./pages/OAuthCallback.jsx";
 import Profile from "./pages/Profile.jsx";
+import ScrollProgress from "./components/ScrollProgress.jsx";
 
 function App() {
   return (
     <ErrorBoundary>
+      <ScrollProgress />
       <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/about" element={<About />} />

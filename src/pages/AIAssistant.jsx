@@ -135,16 +135,16 @@ function AIAssistant() {
     <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-950">
       <Navbar />
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-10 sm:px-6 lg:px-8">
-        <section className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+        <section className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr]">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-leaf dark:text-emerald-300">AI Workspace</p>
-            <h1 className="mt-3 text-4xl font-bold text-forest dark:text-emerald-100">EcoStay AI Assistant</h1>
+            <h1 className="mt-3 text-4xl font-bold text-forest dark:text-emerald-100">A better first draft, faster.</h1>
             <p className="mt-4 max-w-2xl text-base leading-7 text-slate-700 dark:text-slate-300">
               Generate travel plans, listing copy, and guest review insights using a backend Groq API service.
             </p>
             <div className="mt-8 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
               {examples.map((item) => (
-                <div key={item.title} className="rounded-lg border border-emerald-100 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+                <div key={item.title} className="rounded-lg border border-emerald-100 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-sm dark:border-slate-800 dark:bg-slate-900">
                   <h2 className="font-bold text-forest dark:text-emerald-100">{item.title}</h2>
                   <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{item.text}</p>
                 </div>
@@ -152,7 +152,8 @@ function AIAssistant() {
             </div>
           </div>
 
-          <section className="rounded-lg border border-emerald-100 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+          <section className="overflow-hidden rounded-lg border border-emerald-100 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="border-b border-emerald-100 bg-emerald-50/60 p-5 dark:border-slate-800 dark:bg-slate-950 sm:p-6">
             <div className="grid gap-2 rounded-lg bg-emerald-50 p-2 dark:bg-slate-950 sm:grid-cols-3">
               {Object.entries(tools).map(([key, tool]) => (
                 <button
@@ -169,10 +170,13 @@ function AIAssistant() {
                 </button>
               ))}
             </div>
+            </div>
 
-            <div className="mt-6">
+            <div className="p-5 sm:p-6">
+            <div>
               <h2 className="text-2xl font-bold text-forest dark:text-emerald-100">{currentTool.label}</h2>
               <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{currentTool.description}</p>
+              <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500">Private, authenticated AI request</p>
             </div>
 
             <form className="mt-6 grid gap-4" onSubmit={submitTool}>
@@ -199,11 +203,12 @@ function AIAssistant() {
               </Button>
             </form>
 
-            <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-950">
+            <div className="mt-6 rounded-lg border border-emerald-100 bg-emerald-50/50 p-5 dark:border-slate-700 dark:bg-slate-950">
               <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-leaf dark:text-emerald-300">AI output</h3>
               <div className="mt-4 min-h-32 whitespace-pre-wrap text-sm leading-7 text-slate-700 dark:text-slate-200">
                 {loadingTool === activeTool ? <Loader label="Generating AI response" /> : result || "Your AI-generated result will appear here."}
               </div>
+            </div>
             </div>
           </section>
         </section>
